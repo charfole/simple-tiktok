@@ -1,0 +1,62 @@
+# 版本号
+version: "3"
+# 服务列表，命令：docker run
+services:
+  # 服务名称，任意，不重复即可
+  redis:
+    # 指定服务名称，命令：--name redis
+    # 如果不指定，则将默认用docker-compose.yml所在文件夹名_服务名称_n命名
+    environment:
+      TZ: Asia/Shanghai #timeZone 时区
+    container_name: redis-tiktok
+    # 指定镜像：命令 redis:latest
+    image: redis:latest
+    # 指定端口：命令 -p 主机端口:容器端口
+    ports:
+      - "16379:6379"
+    # 数据容器卷
+    volumes:
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+      - ./config/docker/redis/redis.conf:/etc/redis/redis.conf
+      # - ./config/docker/redis/data:/data
+    # 加入指定网络，容器间必须要处于同一个网络才能通过容器名称进行调用
+    # networks:
+    #   - tiktok-network
+    # 运行命令
+    command: redis-server /etc/redis/redis.conf
+
+  mysql:
+    container_name: mysql-tiktok
+    environment:
+      TZ: Asia/Shanghai #timeZone 时区
+      # 等同于 -e MYSQL_ROOT_PASSWORD指定root的登录密码
+      MYSQL_ROOT_PASSWORD: 'tiktokroot'
+      MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+      # 这里这个指令compose启动成功后会自动创建名为simple-tiktok的数据库
+      MYSQL_DATABASE: 'simple-tiktok'
+      # 此处就是相当于 mysql create user，创建了数据库的登录用户
+      MYSQL_USER: 'tiktok'
+      MYSQL_PASSWORD: 'tiktokabc'
+    image: mysql:latest
+    ports:
+      - "13306:3306"
+    volumes:
+      # 同步宿主机的时区
+      - "/etc/localtime:/etc/localtime:ro"
+      - "/etc/timezone:/etc/timezone:ro"
+      # - ./config/docker/mysql/data:/var/lib/mysql
+      # 这里的my.cnf可以从原来的安装的MySQL里面找，如果没有不配置也不影响，只是为了方便外部更改
+      - ./config/docker/mysql/conf/my.cnf:/etc/my.cnf
+      - ./config/docker/mysql/init:/docker-entrypoint-initdb.d
+
+    # networks:
+    #   # 注意加入同一个网络
+    #   - tiktok-network
+    # 解决外部无法访问
+    command: --default-authentication-plugin=mysql_native_password
+
+# 创建网络      
+# networks:
+#   # 默认将会创建为 docker-compose.yml所在 文件夹名_my_network 网络名称
+#   tiktok-network:
