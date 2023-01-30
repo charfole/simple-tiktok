@@ -1,0 +1,22 @@
+[server]
+ip = "120.24.232.79"
+port = "8967"
+
+[path]
+ffmpeg_path = "ffmpeg"
+static_source_path = "/root/Workspace/go/camp/project/simple-tiktok/public"
+
+[mysql]
+host = "127.0.0.1"
+port = "23306"
+database = "simple-tiktok"
+username = "root"
+password = "tiktokroot"
+charset = "utf8mb4"
+parse_time = true
+loc = "Local"
+
+[redis]
+host = "127.0.0.1"
+port = "26379"
+database = "1"
