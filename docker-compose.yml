@@ -8,12 +8,12 @@ services:
     # 如果不指定，则将默认用docker-compose.yml所在文件夹名_服务名称_n命名
     environment:
       TZ: Asia/Shanghai #timeZone 时区
-    container_name: redis-tiktok
+    container_name: tiktok-redis
     # 指定镜像：命令 redis:latest
     image: redis:latest
     # 指定端口：命令 -p 主机端口:容器端口
     ports:
-      - "16379:6379"
+      - "26379:6379"
     # 数据容器卷
     volumes:
       - "/etc/localtime:/etc/localtime:ro"
@@ -27,7 +27,7 @@ services:
     command: redis-server /etc/redis/redis.conf
 
   mysql:
-    container_name: mysql-tiktok
+    container_name: tiktok-mysql
     environment:
       TZ: Asia/Shanghai #timeZone 时区
       # 等同于 -e MYSQL_ROOT_PASSWORD指定root的登录密码
@@ -40,7 +40,7 @@ services:
       MYSQL_PASSWORD: 'tiktokabc'
     image: mysql:latest
     ports:
-      - "13306:3306"
+      - "23306:3306"
     volumes:
       # 同步宿主机的时区
       - "/etc/localtime:/etc/localtime:ro"
