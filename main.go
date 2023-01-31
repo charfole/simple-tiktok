@@ -2,7 +2,8 @@ package main
 
 import (
 	"github.com/charfole/simple-tiktok/config"
-	"github.com/charfole/simple-tiktok/dao"
+	"github.com/charfole/simple-tiktok/dao/mysql"
+	"github.com/charfole/simple-tiktok/models"
 	"github.com/charfole/simple-tiktok/router"
 	"github.com/gin-gonic/gin"
 )
@@ -15,13 +16,13 @@ func main() {
 	r := gin.Default()
 
 	config.InitEnv()
-	dao.InitMySQL()
-	// dao.DB.AutoMigrate(models.Todo{})
-	// todo := models.Todo{ID: 1, Title: "title", Date: "date", Status: true}
-	// err := models.CreateATodo(&todo)
-	// if err != nil {
-	// 	panic(err)
-	// }
+	mysql.InitMySQL()
+	mysql.DB.AutoMigrate(models.Todo{})
+	todo := models.Todo{ID: 1, Title: "title", Date: "date", Status: true}
+	err := mysql.CreateATodo(&todo)
+	if err != nil {
+		panic(err)
+	}
 	router.InitRouter(r)
 
 	port := ":" + config.Info.Server.Port
