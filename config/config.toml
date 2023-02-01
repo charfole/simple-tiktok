@@ -9,7 +9,7 @@ static_source_path = "/root/Workspace/go/camp/project/simple-tiktok/public"
 [mysql]
 host = "127.0.0.1"
 port = "23306"
-database = "simple-tiktok"
+database = "simple_tiktok"
 username = "root"
 password = "tiktokroot"
 charset = "utf8mb4"

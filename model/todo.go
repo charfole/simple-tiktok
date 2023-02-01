@@ -1,4 +1,4 @@
-package models
+package model
 
 // Todo Model 默认映射到当前数据库中的todos表
 type Todo struct {
