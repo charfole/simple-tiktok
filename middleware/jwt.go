@@ -57,7 +57,7 @@ func JWTMiddleware() gin.HandlerFunc {
 			tokenStr = c.PostForm("token")
 		}
 
-		// user doesn't exist
+		// user not found
 		if tokenStr == "" {
 			c.JSON(http.StatusOK, common.Response{StatusCode: 1, StatusMsg: "用户不存在"})
 			c.Abort() // abort the upcoming call

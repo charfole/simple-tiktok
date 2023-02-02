@@ -87,22 +87,42 @@ func CreateRegisterUser(username string, password string) (model.User, error) {
 	}
 
 	// 3.check the user if exists or not
-	isExist, err := mysql.IsUserExist(username)
+	var register model.User
+	err = mysql.GetAUser(username, &register)
 
-	if err != nil {
-		return model.User{}, err
-	}
-
-	if isExist {
-		// if exists
-		return newUser, err
-	} else {
-		// if not, create a new user to MySQL "users" table
+	// if user not found, create a new user
+	if register.CreatedAt.IsZero() {
+		// fmt.Println("user not found!")
 		if err := mysql.CreateAUser(&newUser); err != nil {
+			// return the error in CreateAUser
 			return newUser, err
 		}
+		// create successfully
+		return newUser, nil
+	} else if err == nil {
+		// user found
+		// fmt.Println("user found")
+		return newUser, common.ErrorUserExist
 	}
-	return newUser, nil
+
+	// isExist, err := mysql.IsUserExist(username)
+
+	// if err != nil {
+	// 	return newUser, err
+	// }
+
+	// if isExist {
+	// 	// if exists
+	// 	return newUser, err
+	// } else {
+	// 	// if not, create a new user to MySQL "users" table
+	// 	if err := mysql.CreateAUser(&newUser); err != nil {
+	// 		return newUser, err
+	// 	}
+	// }
+
+	// other unpredicted errors, not create a user
+	return newUser, err
 }
 
 // encrypt the code by bcrypt module

@@ -17,19 +17,35 @@ func CreateAUser(user *model.User) (err error) {
 	return
 }
 
-func IsUserExist(username string) (flag bool, err error) {
-	var userExist = &model.User{}
-	err = DB.Model(&model.User{}).Where("name=?", username).First(&userExist).Error
-	
-	// can't find the user in the "user" tables means user doesn't exist
+// func IsUserExist(username string) (flag bool, err error) {
+// 	var userExist = &model.User{}
+// 	err = DB.Model(&model.User{}).Where("name=?", username).First(&userExist).Error
+
+// 	// user not found
+// 	if errors.Is(err, gorm.ErrRecordNotFound) {
+// 		// user not found
+// 		return false, nil
+// 	}
+// 	// other unpredicted error
+// 	if err != nil {
+// 		return false, common.ErrorSQLFalse
+// 	}
+// 	// user found
+// 	return true, common.ErrorUserExist
+// }
+
+func GetAUser(username string, login *model.User) error {
+	err := DB.Where("name=?", username).First(login).Error
+	// fmt.Printf("%+v", login)
+	// user not found
 	if errors.Is(err, gorm.ErrRecordNotFound) {
-		// user doesn't exist
-		return false, nil
+		return common.ErrorUserNotFound
 	}
 	// other unpredicted error
 	if err != nil {
-		return false, common.ErrorSQLFalse
+		// fmt.Println("获取user错误")
+		return common.ErrorSQLFalse
 	}
-	// user exists
-	return true, common.ErrorUserExist
+	// user found
+	return nil
 }
