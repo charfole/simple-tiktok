@@ -60,8 +60,11 @@ func PackFeedResponse(strToken string, videoList []model.Video) (feedVideoList [
 				if ok && time.Now().Unix() <= tokenStruct.ExpiresAt {
 					var uid1 = tokenStruct.UserID // user id
 					var uid2 = video.AuthorID     // author id
-					if IsFollowing(uid1, uid2) {
+					// if current user is the author, do not show the follow button
+					if uid1 == uid2 {
 						feedUser.IsFollow = true
+					} else {
+						feedUser.IsFollow = IsFollowing(uid1, uid2)
 					}
 				}
 			}
