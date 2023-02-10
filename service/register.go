@@ -88,7 +88,7 @@ func CreateRegisterUser(username string, password string) (model.User, error) {
 
 	// 3.check the user if exists or not
 	var register model.User
-	err = mysql.GetAUser(username, &register)
+	err = mysql.GetAUserByName(username, &register)
 
 	// if user not found, create a new user
 	if register.CreatedAt.IsZero() {

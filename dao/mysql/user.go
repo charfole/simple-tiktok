@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// create a user
+// Create a user
 func CreateAUser(user *model.User) (err error) {
 	err = DB.Model(&model.User{}).Create(&user).Error
 	if err != nil {
@@ -34,7 +34,8 @@ func CreateAUser(user *model.User) (err error) {
 // 	return true, common.ErrorUserExist
 // }
 
-func GetAUser(username string, login *model.User) error {
+// Get user info by name
+func GetAUserByName(username string, login *model.User) error {
 	err := DB.Where("name=?", username).First(login).Error
 	// fmt.Printf("%+v", login)
 	// user not found
@@ -48,4 +49,21 @@ func GetAUser(username string, login *model.User) error {
 	}
 	// user found
 	return nil
+}
+
+// Get user info by ID
+func GetAUserByID(userID uint, user *model.User) error {
+	// DB.Where("id=?", userID).First(user)
+	if err := DB.Model(&model.User{}).Where("id = ?", userID).Find(user).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func GetAUser(userID uint) (model.User, error) {
+	var user model.User
+	if err := DB.Model(&model.User{}).Where("id = ?", userID).Find(&user).Error; err != nil {
+		return user, err
+	}
+	return user, nil
 }

@@ -2,6 +2,7 @@ package router
 
 import (
 	"github.com/charfole/simple-tiktok/controller"
+	"github.com/charfole/simple-tiktok/middleware"
 	"github.com/charfole/simple-tiktok/mycontroller"
 	"github.com/gin-gonic/gin"
 )
@@ -13,8 +14,10 @@ func InitRouter(r *gin.Engine) {
 	apiRouter := r.Group("/douyin")
 
 	// basic apis
-	apiRouter.GET("/feed/", controller.Feed)
-	apiRouter.GET("/user/", controller.UserInfo)
+	// apiRouter.GET("/feed/", controller.Feed)
+	apiRouter.GET("/feed/", mycontroller.Feed)
+	// apiRouter.GET("/user/", controller.UserInfo)
+	apiRouter.GET("/user/", middleware.JWTMiddleware(), mycontroller.UserInfo)
 	// apiRouter.POST("/user/register/", controller.Register)
 	apiRouter.POST("/user/register/", mycontroller.UserRegister)
 	// apiRouter.POST("/user/login/", controller.Login)

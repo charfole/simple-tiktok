@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/charfole/simple-tiktok/config"
 	"github.com/charfole/simple-tiktok/dao/mysql"
+	"github.com/charfole/simple-tiktok/model"
 	"github.com/charfole/simple-tiktok/router"
 	"github.com/gin-gonic/gin"
 )
@@ -16,6 +17,12 @@ func main() {
 
 	config.InitEnv()
 	mysql.InitMySQL()
+	mysql.DB.AutoMigrate(&model.User{})
+	mysql.DB.AutoMigrate(&model.Video{})
+	mysql.DB.AutoMigrate(&model.Following{})
+	mysql.DB.AutoMigrate(&model.Followers{})
+	mysql.DB.AutoMigrate(&model.Favorite{})
+	mysql.DB.AutoMigrate(&model.Comment{})
 	// 用于测试mysql和gorm功能是否正常
 	// mysql.DB.AutoMigrate(model.Todo{})
 	// todo := model.Todo{ID: 1, Title: "title", Date: "date", Status: true}

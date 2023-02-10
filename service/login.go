@@ -21,7 +21,7 @@ func UserLoginService(username string, passWord string) (TokenResponse, error) {
 
 	// 3. if user not found, login fail
 	var login model.User
-	err = mysql.GetAUser(username, &login)
+	err = mysql.GetAUserByName(username, &login)
 	if err != nil {
 		return userResponse, err
 	}
@@ -47,7 +47,7 @@ func UserLoginService(username string, passWord string) (TokenResponse, error) {
 
 // func IsUserExist(username string, password string, login *model.User) error {
 // 	// call the mysql to query a user
-// 	err := mysql.GetAUser(username, login)
+// 	err := mysql.GetAUserByName(username, login)
 // 	// user not found or other unpredicted errors
 // 	if err != nil {
 // 		return err
