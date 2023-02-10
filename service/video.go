@@ -43,7 +43,7 @@ func PackFeedResponse(strToken string, videoList []model.Video) (feedVideoList [
 		var user model.User
 		tmp.ID = video.ID
 		// get the author info
-		user, err := mysql.GetAUser(video.AuthorID)
+		err := mysql.GetAUserByID(video.AuthorID, &user)
 		var feedUser FeedUser
 		if err == nil { // author exists
 			feedUser.ID = user.ID
