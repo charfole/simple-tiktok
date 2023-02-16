@@ -7,7 +7,7 @@ ffmpeg_path = "ffmpeg"
 static_source_path = "/root/Workspace/go/camp/project/simple-tiktok/public"
 
 [mysql]
-host = "127.0.0.1"
+host = "120.24.232.79"
 port = "23306"
 database = "simple_tiktok"
 username = "root"
