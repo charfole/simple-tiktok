@@ -18,4 +18,5 @@ var (
 	ErrorNullPointer     = errors.New("空指针异常")
 	ErrorPasswordFalse   = errors.New("密码错误！")
 	ErrorVideoList       = errors.New("获取视频列表出错！")
+	ErrorVideoUpload     = errors.New("上传视频出错！")
 )

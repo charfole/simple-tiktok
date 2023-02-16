@@ -20,3 +20,11 @@ loc = "Local"
 host = "127.0.0.1"
 port = "26379"
 database = "1"
+
+[cos]
+bucket_name = "charfolebase"
+app_id      = "1301984140"
+region      = "ap-guangzhou"
+secret_id   = "AKIDfLw4CFB0kZItoeNzSo2qcEeqpgKm3CD3"
+secret_key  = "g9PTHsMg3D92lIchXXBettiJek4DIBrJ"
+url_format  = "http://%s-%s.cos.%s.myqcloud.com"

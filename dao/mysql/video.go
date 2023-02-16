@@ -2,6 +2,11 @@ package mysql
 
 import "github.com/charfole/simple-tiktok/model"
 
+// CreateVideo 添加一条视频信息
+func CreateVideo(video *model.Video) {
+	DB.Model(&model.Video{}).Create(&video)
+}
+
 func GetVideoByTime(time string, videoNum int, videoList *[]model.Video) (err error) {
 	// return the video list by desc
 	err = DB.Model(&model.Video{}).Where("created_at < ?", time).

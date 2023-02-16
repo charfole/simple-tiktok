@@ -33,11 +33,21 @@ type Redis struct {
 	Database int
 }
 
+type COS struct {
+	BucketName string `mapstructure:"bucket_name"`
+	AppID      string `mapstructure:"app_id"`
+	Region     string
+	SecretID   string `mapstructure:"secret_id"`
+	SecretKey  string `mapstructure:"secret_key"`
+	URLFormat  string `mapstructure:"url_format"`
+}
+
 type Config struct {
 	DB     MySQL `mapstructure:"mysql"`
 	RDB    Redis `mapstructure:"redis"`
 	Server `mapstructure:"server"`
 	Path   `mapstructure:"path"`
+	COS    `mapstructure:"cos"`
 }
 
 var Info Config
@@ -55,4 +65,5 @@ func InitEnv() {
 	fmt.Printf("path: %+v\n", Info.Path)
 	fmt.Printf("MySQL: %+v\n", Info.DB)
 	fmt.Printf("Redis: %+v\n", Info.RDB)
+	fmt.Printf("COS: %+v\n", Info.COS)
 }

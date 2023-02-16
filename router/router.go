@@ -22,7 +22,8 @@ func InitRouter(r *gin.Engine) {
 	apiRouter.POST("/user/register/", mycontroller.UserRegister)
 	// apiRouter.POST("/user/login/", controller.Login)
 	apiRouter.POST("/user/login/", mycontroller.UserLogin)
-	apiRouter.POST("/publish/action/", controller.Publish)
+	// apiRouter.POST("/publish/action/", controller.Publish)
+	apiRouter.POST("/publish/action/", middleware.JWTMiddleware(), mycontroller.Publish)
 	// apiRouter.GET("/publish/list/", controller.PublishList)
 	apiRouter.GET("/publish/list/", middleware.JWTMiddleware(), mycontroller.PublishList)
 

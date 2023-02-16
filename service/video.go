@@ -1,12 +1,22 @@
 package service
 
 import (
+	"bytes"
+	"context"
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"os"
 	"time"
 
+	"github.com/charfole/simple-tiktok/config"
 	"github.com/charfole/simple-tiktok/dao/mysql"
 	"github.com/charfole/simple-tiktok/middleware"
 	"github.com/charfole/simple-tiktok/model"
+	ffmpeg "github.com/u2takey/ffmpeg-go"
+
+	"github.com/tencentyun/cos-go-sdk-v5"
 )
 
 type FeedUser struct {
@@ -28,6 +38,42 @@ type FeedVideo struct {
 	CommentCount  uint     `json:"comment_count,omitempty"`
 	IsFavorite    bool     `json:"is_favorite,omitempty"`
 	Title         string   `json:"title,omitempty"`
+}
+
+// COSUpload 上传至云端，返回url
+func COSUpload(fileName string, reader io.Reader) (string, error) {
+	// bucketURL := fmt.Sprintf(objectstorage.COS_URL_FORMAT, objectstorage.COS_BUCKET_NAME, objectstorage.COS_APP_ID, objectstorage.COS_REGION)
+	bucketURL := fmt.Sprintf(config.Info.COS.URLFormat, config.Info.COS.BucketName, config.Info.COS.AppID, config.Info.COS.Region)
+	fmt.Println("bucketURL: ", bucketURL)
+	u, _ := url.Parse(bucketURL)
+	b := &cos.BaseURL{BucketURL: u}
+	client := cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  config.Info.COS.SecretID,
+			SecretKey: config.Info.COS.SecretKey,
+		},
+	})
+	//path为本地的保存路径
+	_, err := client.Object.Put(context.Background(), fileName, reader, nil)
+	if err != nil {
+		panic(err)
+	}
+	// return "https://charfolebase-1301984140.cos.ap-guangzhou.myqcloud.com/" + fileName, nil
+	return bucketURL + "/" + fileName, nil
+}
+
+// ExampleReadFrameAsJpeg 获取封面
+func ExampleReadFrameAsJpeg(inFileName string, frameNum int) io.Reader {
+	buf := bytes.NewBuffer(nil)
+	err := ffmpeg.Input(inFileName).
+		Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
+		Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+		WithOutput(buf, os.Stdout).
+		Run()
+	if err != nil {
+		panic(err)
+	}
+	return buf
 }
 
 func PackFeedResponse(strToken string, videoList []model.Video) (feedVideoList []FeedVideo, newTime int64) {
