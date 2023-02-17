@@ -53,9 +53,9 @@ type Config struct {
 var Info Config
 
 func InitEnv() {
-	viper.SetConfigFile("/root/Workspace/go/camp/project/simple-tiktok/config/config.toml") // 指定配置文件路径
-	err := viper.ReadInConfig()                                                             // 读取配置信息
-	if err != nil {                                                                         // 读取配置信息失败
+	viper.SetConfigFile("C:/Users/sysu/simple-tiktok/config/config.toml") // 指定配置文件路径
+	err := viper.ReadInConfig()                                           // 读取配置信息
+	if err != nil {                                                       // 读取配置信息失败
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 	if err := viper.Unmarshal(&Info); err != nil {

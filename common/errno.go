@@ -21,4 +21,6 @@ var (
 	ErrorVideoUpload        = errors.New("上传视频出错！")
 	ErrorCOSUpload          = errors.New("COS服务出错！")
 	ErrorVideoDBCreateFalse = errors.New("视频数据创建失败！")
+	ErrorRelationExit       = errors.New("关注已存在")
+	ErrorRelationNull       = errors.New("关注不存在")
 )
