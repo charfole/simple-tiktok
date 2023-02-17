@@ -7,7 +7,7 @@ import (
 	"github.com/gavv/httpexpect/v2"
 )
 
-var serverAddr = "http://localhost:8967"
+var serverAddr = "http://localhost:8888"
 var testUserA = "douyinTestUserA"
 var testUserB = "douyinTestUserB"
 

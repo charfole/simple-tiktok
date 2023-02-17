@@ -19,4 +19,6 @@ var (
 	ErrorPasswordFalse   = errors.New("密码错误！")
 	ErrorVideoList       = errors.New("获取视频列表出错！")
 	ErrorVideoUpload     = errors.New("上传视频出错！")
+	ErrorRelationExit    = errors.New("关注已存在")
+	ErrorRelationNull    = errors.New("关注不存在")
 )
