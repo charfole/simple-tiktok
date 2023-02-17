@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/charfole/simple-tiktok/common"
 	"github.com/charfole/simple-tiktok/config"
@@ -15,7 +16,6 @@ import (
 	"github.com/charfole/simple-tiktok/service"
 	"github.com/gin-gonic/gin"
 	logging "github.com/sirupsen/logrus"
-	"gorm.io/gorm"
 )
 
 type VideoListResponse struct {
@@ -24,12 +24,11 @@ type VideoListResponse struct {
 }
 
 func Publish(c *gin.Context) { //上传视频方法
-	//1.中间件验证token后，获取userID
+	// 1. check the token and get user_id(the id of the author)
 	getUserID, _ := c.Get("user_id")
-	var userID uint
-	userID = getUserID.(uint)
+	userID := getUserID.(uint)
 
-	//2.接收请求参数信息
+	// 2. get the title and data of the uploaded video
 	title := c.PostForm("title")
 	data, err := c.FormFile("data")
 
@@ -41,23 +40,15 @@ func Publish(c *gin.Context) { //上传视频方法
 		return
 	}
 
-	//3.返回至前端页面的展示信息
+	// 3. construct the file name
 	fileName := filepath.Base(data.Filename)
-	finalName := fmt.Sprintf("%d_%s", userID, fileName)
-	fmt.Println(fileName)
-	fmt.Println(finalName)
+	nowTime := time.Now().Unix()
+	finalName := fmt.Sprintf("%d_%s_%d", userID, fileName, nowTime)
 
-	//先存储到本地文件夹，再保存到云端，获取封面后最后删除
-	saveFile := filepath.Join(config.Info.Path.StaticSourcePath, "/", finalName)
-	fmt.Println(saveFile)
-	if err := c.SaveUploadedFile(data, saveFile); err != nil {
-		c.JSON(http.StatusOK, common.Response{
-			StatusCode: 1,
-			StatusMsg:  common.ErrorVideoUpload.Error(),
-		})
-		return
-	}
-	// 打开本地文件并读入
+	fmt.Println("初始文件名：", fileName)
+	fmt.Println("最终文件名：", finalName)
+
+	// 4. open and read the local file
 	f, err := data.Open()
 	if err != nil {
 		c.JSON(http.StatusOK, common.Response{
@@ -66,50 +57,65 @@ func Publish(c *gin.Context) { //上传视频方法
 		})
 		return
 	}
-	//从本地上传到云端，并获取云端地址
-	playUrl, err := service.COSUpload(finalName, f)
+	defer f.Close()
+
+	// 5. upload the local file to COS
+	palyURL, err := service.COSUpload(finalName, f)
 	if err != nil {
 		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 1,
-			StatusMsg:  err.Error(),
+			StatusMsg:  common.ErrorCOSUpload.Error(),
 		})
 		return
 	}
-	c.JSON(http.StatusOK, common.Response{
-		StatusCode: 0,
-		StatusMsg:  finalName + "--uploaded successfully",
-	})
 
-	//直接传至云端，不用存储到本地
+	// 6. save the file temporarily to the static path
+	savePath := filepath.Join(config.Info.Path.StaticSourcePath, "/", finalName)
+	fmt.Println("保存到服务器的临时路径：", savePath)
+
+	if err := c.SaveUploadedFile(data, savePath); err != nil {
+		c.JSON(http.StatusOK, common.Response{
+			StatusCode: 1,
+			StatusMsg:  common.ErrorVideoUpload.Error(),
+		})
+		return
+	}
+
+	// 7. get the cover from the local video
 	coverName := strings.Replace(finalName, ".mp4", ".jpeg", 1)
-	img := service.ExampleReadFrameAsJpeg(saveFile, 2) //获取第2帧封面
+	img := service.GetCoverFrame(savePath, 2) //获取第2帧封面
 
-	coverUrl, err := service.COSUpload(coverName, img)
+	// 8. upload the cover image to the COS
+	coverURL, err := service.COSUpload(coverName, img)
 	if err != nil {
 		c.JSON(http.StatusOK, common.Response{
 			StatusCode: 1,
-			StatusMsg:  err.Error(),
+			StatusMsg:  common.ErrorCOSUpload.Error(),
 		})
 		return
 	}
 
-	//删除保存在本地中的视频
-	err = os.Remove(saveFile) // ignore_security_alert
+	// 9. remove the local video
+	err = os.Remove(savePath) // ignore_security_alert
 	if err != nil {
 		logging.Info(err)
 	}
 
-	//4.保存发布信息至数据库,刚开始发布，喜爱和评论默认为0
-	video := model.Video{
-		Model:         gorm.Model{},
-		AuthorID:      userID,
-		PlayURL:       playUrl,
-		CoverURL:      coverUrl,
-		FavoriteCount: 0,
-		CommentCount:  0,
-		Title:         title,
+	// 10. save the video record to "videos" database
+	err = service.CreateVideo(userID, palyURL, coverURL, title)
+	if err != nil {
+		c.JSON(http.StatusOK, common.Response{
+			StatusCode: 1,
+			StatusMsg:  common.ErrorVideoDBCreateFalse.Error(),
+		})
+		return
 	}
-	mysql.CreateVideo(&video)
+
+	// 11. no errors found, upload successfully
+	c.JSON(http.StatusOK, common.Response{
+		StatusCode: 0,
+		StatusMsg:  finalName + " --uploaded successfully",
+	})
 }
 
 func PublishList(c *gin.Context) { //获取列表的方法
