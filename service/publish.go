@@ -1,8 +1,20 @@
 package service
 
 import (
+	"bytes"
+	"context"
+	"fmt"
+	"io"
+	"net/http"
+	"net/url"
+	"os"
+
+	"github.com/charfole/simple-tiktok/config"
 	"github.com/charfole/simple-tiktok/dao/mysql"
 	"github.com/charfole/simple-tiktok/model"
+	"github.com/tencentyun/cos-go-sdk-v5"
+	ffmpeg "github.com/u2takey/ffmpeg-go"
+	"gorm.io/gorm"
 )
 
 type ReturnAuthor struct {
@@ -50,4 +62,55 @@ func PackVideo(videoList []model.Video, author ReturnAuthor, hostID uint) (retur
 		returnVideoList = append(returnVideoList, returnVideo)
 	}
 	return
+}
+
+// COSUpload upload the file to the COS
+func COSUpload(fileName string, reader io.Reader) (string, error) {
+	// bucketURL := fmt.Sprintf(objectstorage.COS_URL_FORMAT, objectstorage.COS_BUCKET_NAME, objectstorage.COS_APP_ID, objectstorage.COS_REGION)
+	bucketURL := fmt.Sprintf(config.Info.COS.URLFormat, config.Info.COS.BucketName, config.Info.COS.AppID, config.Info.COS.Region)
+	fmt.Println("bucketURL: ", bucketURL)
+	u, _ := url.Parse(bucketURL)
+	b := &cos.BaseURL{BucketURL: u}
+	client := cos.NewClient(b, &http.Client{
+		Transport: &cos.AuthorizationTransport{
+			SecretID:  config.Info.COS.SecretID,
+			SecretKey: config.Info.COS.SecretKey,
+		},
+	})
+	// put(upload) the file to the COS
+	_, err := client.Object.Put(context.Background(), fileName, reader, nil)
+	if err != nil {
+		panic(err)
+	}
+	// return "https://charfolebase-1301984140.cos.ap-guangzhou.myqcloud.com/" + fileName, nil
+	return bucketURL + "/" + fileName, nil
+}
+
+// GetCoverFrame call the ffmpeg-go to get the cover
+func GetCoverFrame(inFileName string, frameNum int) io.Reader {
+	// create and write the cover image into buf
+	buf := bytes.NewBuffer(nil)
+	err := ffmpeg.Input(inFileName).
+		Filter("select", ffmpeg.Args{fmt.Sprintf("gte(n,%d)", frameNum)}).
+		Output("pipe:", ffmpeg.KwArgs{"vframes": 1, "format": "image2", "vcodec": "mjpeg"}).
+		WithOutput(buf, os.Stdout).
+		Run()
+	if err != nil {
+		panic(err)
+	}
+	return buf
+}
+
+func CreateVideo(userID uint, playURL, coverURL, title string) (err error) {
+	video := model.Video{
+		Model:         gorm.Model{},
+		AuthorID:      userID,
+		PlayURL:       playURL,
+		CoverURL:      coverURL,
+		FavoriteCount: 0,
+		CommentCount:  0,
+		Title:         title,
+	}
+	err = mysql.CreateVideo(&video)
+	return err
 }
