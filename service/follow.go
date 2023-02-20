@@ -2,6 +2,7 @@ package service
 
 import (
 	"errors"
+
 	"github.com/charfole/simple-tiktok/common"
 	"github.com/charfole/simple-tiktok/dao/mysql"
 	"github.com/charfole/simple-tiktok/model"
@@ -43,7 +44,7 @@ func FollowAction(HostID uint, GuestID uint, actionType uint) error {
 		//判断关注是否存在
 		if IsFollowing(HostID, GuestID) {
 			//关注存在
-			return common.ErrorRelationExit
+			return common.ErrorRelationExist
 		} else {
 			//关注不存在,创建关注(启用事务Transaction)
 			err1 := mysql.DB.Transaction(func(db *gorm.DB) error {

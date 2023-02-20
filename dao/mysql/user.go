@@ -2,6 +2,7 @@ package mysql
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/charfole/simple-tiktok/common"
 	"github.com/charfole/simple-tiktok/model"
@@ -66,4 +67,48 @@ func GetAUser(userID uint) (model.User, error) {
 		return user, err
 	}
 	return user, nil
+}
+
+// AddTotalFavorited 增加total_favorited
+func AddTotalFavorited(HostID uint) error {
+	fmt.Printf("AddTotalFavorited: 增加%d的获赞数目\n", HostID)
+	if err := DB.Model(&model.User{}).
+		Where("id=?", HostID).
+		Update("total_favorited", gorm.Expr("total_favorited+?", 1)).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// ReduceTotalFavorited 减少total_favorited
+func ReduceTotalFavorited(HostID uint) error {
+	fmt.Printf("ReduceTotalFavorited: 减少%d的获赞数目\n", HostID)
+	if err := DB.Model(&model.User{}).
+		Where("id=?", HostID).
+		Update("total_favorited", gorm.Expr("total_favorited-?", 1)).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddFavoriteCount 增加favorite_count
+func AddFavoriteCount(HostID uint) error {
+	fmt.Printf("AddFavoriteCount: 增加%d的喜欢数目\n", HostID)
+	if err := DB.Model(&model.User{}).
+		Where("id=?", HostID).
+		Update("favorite_count", gorm.Expr("favorite_count+?", 1)).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// ReduceFavoriteCount 减少favorite_count
+func ReduceFavoriteCount(HostID uint) error {
+	fmt.Printf("ReduceFavoriteCount: 减少%d的喜欢数目\n", HostID)
+	if err := DB.Model(&model.User{}).
+		Where("id=?", HostID).
+		Update("favorite_count", gorm.Expr("favorite_count-?", 1)).Error; err != nil {
+		return err
+	}
+	return nil
 }
