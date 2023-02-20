@@ -23,6 +23,7 @@ func main() {
 	mysql.DB.AutoMigrate(&model.Followers{})
 	mysql.DB.AutoMigrate(&model.Favorite{})
 	mysql.DB.AutoMigrate(&model.Comment{})
+	mysql.DB.AutoMigrate(&model.Message{})
 	// 用于测试mysql和gorm功能是否正常
 	// mysql.DB.AutoMigrate(model.Todo{})
 	// todo := model.Todo{ID: 1, Title: "title", Date: "date", Status: true}

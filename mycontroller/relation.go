@@ -1,6 +1,7 @@
 package mycontroller
 
 import (
+	"fmt"
 	"github.com/charfole/simple-tiktok/common"
 	"github.com/charfole/simple-tiktok/middleware"
 	"github.com/charfole/simple-tiktok/model"
@@ -102,6 +103,7 @@ func FollowList(c *gin.Context) {
 		ReturnFollowerList[i].FollowerCount = m.FollowerCount
 		ReturnFollowerList[i].IsFollow = service.IsFollowing(hostID, m.ID)
 	}
+	fmt.Printf("找到关注表", ReturnFollowerList)
 
 	//3.响应返回
 	if err != nil {
@@ -139,10 +141,10 @@ func FollowerList(c *gin.Context) {
 	var err error
 	var userList []model.User
 	if guestID == 0 {
-		//查本人的关注表
+		//查本人的粉丝表
 		userList, err = service.FollowerList(hostID)
 	} else {
-		//查对方的关注表
+		//查对方的粉丝表
 		userList, err = service.FollowerList(guestID)
 	}
 
@@ -155,6 +157,7 @@ func FollowerList(c *gin.Context) {
 		ReturnFollowerList[i].FollowerCount = m.FollowerCount
 		ReturnFollowerList[i].IsFollow = service.IsFollowing(hostID, m.ID)
 	}
+	fmt.Printf("找到粉丝表", ReturnFollowerList)
 
 	//3.处理
 	if err != nil {
@@ -174,4 +177,49 @@ func FollowerList(c *gin.Context) {
 			UserList: ReturnFollowerList,
 		})
 	}
+}
+
+type FriendListResponse struct {
+	common.Response
+	UserList []model.FriendUser `json:"user_list"` // 用户列表
+}
+
+// FriendList 好友列表
+func FriendList(c *gin.Context) {
+	//user_id := c.Query("user_id")
+	token := c.Query("token")
+	tokenStruct, check := middleware.CheckToken(token)
+	// 4. if token of the login user not checked, return error
+	if !check {
+		c.JSON(http.StatusOK, UserInfoResponse{
+			Response: common.Response{
+				StatusCode: 1,
+				StatusMsg:  "err.Error()",
+			},
+		})
+		return
+	}
+
+	// 5. if checked, get the login userID
+	//hostID := tokenStruct.UserID
+	userID := tokenStruct.UserID
+	//userID, err := strconv.ParseUint(user_id, 10, 64)
+	fmt.Printf("点击了消息列表,user_id是", userID)
+
+	friendUsers, err := service.FriendListService(userID)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, common.Response{
+			StatusCode: -1,
+			StatusMsg:  err.Error(),
+		})
+		return
+	}
+	c.JSON(http.StatusOK, FriendListResponse{
+		Response: common.Response{
+			StatusCode: 0,
+			StatusMsg:  "获取好友成功",
+		},
+		UserList: friendUsers,
+	})
+	return
 }

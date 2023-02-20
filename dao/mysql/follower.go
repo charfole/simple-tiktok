@@ -86,3 +86,13 @@ func DeleteFollower(HostID uint, GuestID uint) error {
 
 	return nil
 }
+
+// 获取好友表，即互相都是对方粉丝
+func FriendList(userID uint) ([]model.User, error) {
+	var userList []model.User
+	//查粉丝表
+	err := DB.Model(&model.User{}).
+		Where("users.ID IN (SELECT a.host_id FROM followers a JOIN followers b ON a.host_id  = b.guest_id AND a.guest_id = b.host_id  AND a.guest_id = ? AND a.deleted_at is null AND b.deleted_at is null)", userID).
+		Scan(&userList).Error
+	return userList, err
+}
