@@ -28,9 +28,9 @@ func InitMySQL() {
 	// config.InitEnv()
 	dsn := getDSN()
 	DB, DBError = gorm.Open(mysql.Open(dsn), &gorm.Config{
-		PrepareStmt:            true,
-		SkipDefaultTransaction: true,
-		Logger:                 logger.Default.LogMode(logger.Info),
+		PrepareStmt: true,
+		// SkipDefaultTransaction: true,
+		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if DBError != nil {
 		panic(DBError)

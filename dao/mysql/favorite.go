@@ -22,3 +22,20 @@ func IsFavorite(uid uint, vid uint) bool {
 
 	return true
 }
+
+func CreateAFavorite(favoriteAction *model.Favorite) (err error) {
+	err = DB.Model(model.Favorite{}).Create(favoriteAction).Error
+	return err
+}
+
+func UpdateFavoriteState(userID, videoID, state uint) (err error) {
+	err = DB.Model(model.Favorite{}).Where("user_id = ? AND video_id = ?", userID, videoID).
+		Update("state", state).Error
+	return
+}
+
+func IsFavoriteRecordExist(userID, videoID uint, favoriteStruct *model.Favorite) (err error) {
+	err = DB.Model(model.Favorite{}).Where("user_id = ? AND video_id = ?", userID, videoID).
+		First(favoriteStruct).Error
+	return
+}

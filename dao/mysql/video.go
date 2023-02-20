@@ -1,6 +1,9 @@
 package mysql
 
-import "github.com/charfole/simple-tiktok/model"
+import (
+	"github.com/charfole/simple-tiktok/model"
+	"gorm.io/gorm"
+)
 
 // CreateVideo 添加一条视频信息
 func CreateVideo(video *model.Video) (err error) {
@@ -20,4 +23,29 @@ func GetVideoList(userID uint) []model.Video {
 	var videoList []model.Video
 	DB.Model(model.Video{}).Where("author_id=?", userID).Find(&videoList)
 	return videoList
+}
+
+// GetVideoAuthor get video author
+func GetVideoAuthorID(videoID uint) (uint, error) {
+	var video model.Video
+	if err := DB.Table("videos").Where("id = ?", videoID).Find(&video).Error; err != nil {
+		return video.ID, err
+	}
+	return video.AuthorID, nil
+}
+
+func AddVideoFavoriteCount(videoID uint) (err error) {
+	err = DB.Model(model.Video{}).Where("id = ?", videoID).
+		Update("favorite_count", gorm.Expr("favorite_count + 1")).
+		Error
+
+	return
+}
+
+func ReduceVideoFavoriteCount(videoID uint) (err error) {
+	err = DB.Model(model.Video{}).Where("id = ?", videoID).
+		Update("favorite_count", gorm.Expr("favorite_count - 1")).
+		Error
+
+	return
 }

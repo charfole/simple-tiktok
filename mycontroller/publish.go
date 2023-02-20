@@ -43,7 +43,8 @@ func Publish(c *gin.Context) { //上传视频方法
 	// 3. construct the file name
 	fileName := filepath.Base(data.Filename)
 	nowTime := time.Now().Unix()
-	finalName := fmt.Sprintf("%d_%s_%d", userID, fileName, nowTime)
+	// format: id_time_filename.mp4
+	finalName := fmt.Sprintf("%d_%d_%s", userID, nowTime, fileName)
 
 	fmt.Println("初始文件名：", fileName)
 	fmt.Println("最终文件名：", finalName)
