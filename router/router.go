@@ -1,7 +1,6 @@
 package router
 
 import (
-	"github.com/charfole/simple-tiktok/controller"
 	"github.com/charfole/simple-tiktok/middleware"
 	"github.com/charfole/simple-tiktok/mycontroller"
 	"github.com/gin-gonic/gin"
@@ -32,8 +31,10 @@ func InitRouter(r *gin.Engine) {
 	apiRouter.POST("/favorite/action/", middleware.JWTMiddleware(), mycontroller.Favorite)
 	// apiRouter.GET("/favorite/list/", controller.FavoriteList)
 	apiRouter.GET("/favorite/list/", middleware.JWTMiddleware(), mycontroller.FavoriteList)
-	apiRouter.POST("/comment/action/", controller.CommentAction)
-	apiRouter.GET("/comment/list/", controller.CommentList)
+	// apiRouter.POST("/comment/action/", controller.CommentAction)
+	apiRouter.POST("/comment/action/", middleware.JWTMiddleware(), mycontroller.CommentAction)
+	// apiRouter.GET("/comment/list/", controller.CommentList)
+	apiRouter.GET("/comment/list/", mycontroller.CommentList)
 
 	// extra apis - II
 	apiRouter.POST("/relation/action/", middleware.JWTMiddleware(), mycontroller.RelationAction)

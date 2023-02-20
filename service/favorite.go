@@ -119,21 +119,32 @@ func FavoriteAction(userID uint, videoID uint, actionType uint) (err error) {
 	return nil
 }
 
-// FavoriteList 获取点赞列表
+// FavoriteList return the favorite list of user
 func FavoriteList(userID uint) ([]model.Video, error) {
-	//查询当前id用户的所有点赞视频
-	var favoriteList []model.Favorite
+	// var favoriteList []model.Favorite
 	videoList := make([]model.Video, 0)
-	if err := mysql.DB.Table("favorites").Where("user_id=? AND state=?", userID, 1).Find(&favoriteList).Error; err != nil { //找不到记录
+	// if err = mysql.DB.Table("favorites").Where("user_id=? AND state=?", userID, 1).Find(&favoriteList).Error; err != nil {
+	// 	return videoList, nil
+	// }
+	favoriteList, err := mysql.GetFavoriteList(userID)
+	if err != nil {
+		// empty favorite list
 		return videoList, nil
 	}
+	// get the id of favorited video and get the video
 	for _, m := range favoriteList {
-
-		var video = model.Video{}
-		if err := mysql.DB.Table("videos").Where("id=?", m.VideoID).Find(&video).Error; err != nil {
-			return nil, err
+		var video model.Video
+		// if err := mysql.DB.Table("videos").Where("id=?", m.VideoID).Find(&video).Error; err != nil {
+		// 	return nil, err
+		// }
+		if err := mysql.GetVideoByID(m.VideoID, &video); err != nil {
+			// return nil, err
+			// video not found, maybe deleted, continue to find other favorited videos
+			fmt.Printf("%d号视频查找失败\n", m.VideoID)
+			continue
+		} else {
+			videoList = append(videoList, video)
 		}
-		videoList = append(videoList, video)
 	}
 	return videoList, nil
 }

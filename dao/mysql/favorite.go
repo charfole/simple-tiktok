@@ -39,3 +39,8 @@ func IsFavoriteRecordExist(userID, videoID uint, favoriteStruct *model.Favorite)
 		First(favoriteStruct).Error
 	return
 }
+
+func GetFavoriteList(userID uint) (favoriteList []model.Favorite, err error) {
+	err = DB.Model(model.Favorite{}).Where("user_id=? AND state=?", userID, 1).Find(&favoriteList).Error
+	return favoriteList, err
+}

@@ -68,28 +68,33 @@ func Favorite(c *gin.Context) {
 	}
 }
 
-// FavoriteList 获取列表方法
+// FavoriteList the controller to get the favorite list
 func FavoriteList(c *gin.Context) {
-	//user_id获取
-	getUserID, _ := c.Get("user_id")
-	var userIDHost uint
-	if v, ok := getUserID.(uint); ok {
-		userIDHost = v
-	}
-	userIDStr := c.Query("user_id") //自己id或别人id
-	userID, _ := strconv.ParseUint(userIDStr, 10, 10)
-	userIDNew := uint(userID)
-	if userIDNew == 0 {
-		userIDNew = userIDHost
+	// 1. get the id of login user
+	getHostID, _ := c.Get("user_id")
+	var hostID uint
+	if v, ok := getHostID.(uint); ok {
+		hostID = v
 	}
 
-	//函数调用及响应
-	videoList, err := service.FavoriteList(userIDNew)
-	videoListNew := make([]FavoriteVideo, 0)
-	for _, m := range videoList {
-		var author = FavoriteAuthor{}
-		var getAuthor = model.User{}
-		err := mysql.GetAUserByID(m.AuthorID, &getAuthor) //参数类型、错误处理
+	// 2. get the id of query user
+	userIDStr := c.Query("user_id")
+	userIDRaw, _ := strconv.ParseUint(userIDStr, 10, 10)
+	userID := uint(userIDRaw)
+	if userID == 0 {
+		userID = hostID
+	}
+
+	// 3. get the raw favorite video list and pack the response
+	rawVideoList, err := service.FavoriteList(userID)
+	favoriteVideoList := make([]FavoriteVideo, 0)
+	for _, v := range rawVideoList {
+		var getAuthor model.User
+		var author FavoriteAuthor
+		var video FavoriteVideo
+
+		// 4. get the video author by id
+		err := mysql.GetAUserByID(v.AuthorID, &getAuthor)
 		if err != nil {
 			c.JSON(http.StatusOK, common.Response{
 				StatusCode: 1,
@@ -98,45 +103,50 @@ func FavoriteList(c *gin.Context) {
 			c.Abort()
 			return
 		}
-		//isfollowing
-		isfollowing := service.IsFollowing(userIDHost, m.AuthorID) //参数类型、错误处理
-		//isfavorite
-		isfavorite := mysql.IsFavorite(userIDHost, m.ID)
-		//作者信息
+
+		// 5. check the host follows the video author or not
+		isfollowing := service.IsFollowing(hostID, v.AuthorID)
+
+		// 6. pack the author struct in response
 		author.ID = getAuthor.ID
 		author.Name = getAuthor.Name
 		author.FollowCount = getAuthor.FollowCount
 		author.FollowerCount = getAuthor.FollowerCount
 		author.IsFollow = isfollowing
-		//组装
-		var video = FavoriteVideo{}
-		video.ID = m.ID //类型转换
-		video.Author = author
-		video.PlayURL = m.PlayURL
-		video.CoverURL = m.CoverURL
-		video.FavoriteCount = m.FavoriteCount
-		video.CommentCount = m.CommentCount
-		video.IsFavorite = isfavorite
-		video.Title = m.Title
 
-		videoListNew = append(videoListNew, video)
+		// 7. check the host favors the video or not
+		isfavorite := mysql.IsFavorite(hostID, v.ID)
+
+		// 8. pack the video struct in response
+		video.ID = v.ID //类型转换
+		video.Author = author
+		video.PlayURL = v.PlayURL
+		video.CoverURL = v.CoverURL
+		video.FavoriteCount = v.FavoriteCount
+		video.CommentCount = v.CommentCount
+		video.IsFavorite = isfavorite
+		video.Title = v.Title
+
+		favoriteVideoList = append(favoriteVideoList, video)
 	}
 
+	// 9. error found, return error
 	if err != nil {
-		c.JSON(http.StatusBadRequest, FavoriteListResponse{
+		c.JSON(http.StatusOK, FavoriteListResponse{
 			Response: common.Response{
 				StatusCode: 1,
-				StatusMsg:  "查找列表失败！",
+				StatusMsg:  "获取喜欢列表失败！",
 			},
 			VideoList: nil,
 		})
 	} else {
+		// 10. return the favorite list
 		c.JSON(http.StatusOK, FavoriteListResponse{
 			Response: common.Response{
 				StatusCode: 0,
-				StatusMsg:  "已找到列表！",
+				StatusMsg:  "已找到喜欢列表！",
 			},
-			VideoList: videoListNew,
+			VideoList: favoriteVideoList,
 		})
 	}
 }

@@ -11,6 +11,11 @@ func CreateVideo(video *model.Video) (err error) {
 	return err
 }
 
+func GetVideoByID(videoID uint, video *model.Video) (err error) {
+	err = DB.Model(&model.Video{}).Where("id=?", videoID).Find(video).Error
+	return err
+}
+
 func GetVideoByTime(time string, videoNum int, videoList *[]model.Video) (err error) {
 	// return the video list by desc
 	err = DB.Model(&model.Video{}).Where("created_at < ?", time).
@@ -48,4 +53,21 @@ func ReduceVideoFavoriteCount(videoID uint) (err error) {
 		Error
 
 	return
+}
+
+// ReduceCommentCount reduce comment_count
+func ReduceCommentCount(videoID uint) error {
+	if err := DB.Table("videos").Where("id = ?", videoID).Update("comment_count", gorm.Expr("comment_count - 1")).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+// AddCommentCount add comment_count
+func AddCommentCount(videoID uint) error {
+
+	if err := DB.Table("videos").Where("id = ?", videoID).Update("comment_count", gorm.Expr("comment_count + 1")).Error; err != nil {
+		return err
+	}
+	return nil
 }
