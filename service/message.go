@@ -1,74 +1,34 @@
 package service
 
 import (
-	"encoding/json"
-	"fmt"
-	"io"
-	"net"
-	"sync"
-
-	"github.com/charfole/simple-tiktok/controller"
+	"errors"
+	"github.com/charfole/simple-tiktok/dao/mysql"
+	"github.com/charfole/simple-tiktok/model"
 )
 
-var chatConnMap = sync.Map{}
+// 定义键值对维护消息记录 用户的Id->用户目前的消息记录索引
+var userCommentIndex = make(map[uint]int64)
 
-func RunMessageServer() {
-	listen, err := net.Listen("tcp", "127.0.0.1:9090")
+// 定义键值对维护消息记录 用户的Id->用户目前的消息记录最大值
+var userMessageMaxIndex = make(map[uint]int64)
+
+func MessageChatService(userId uint, toUserId uint, pre_msg_time int64) ([]model.Message, error) {
+	// 查询userid和toUserId的表
+	messages, err := mysql.QueryMessageByUserIdAndToUserId(userId, toUserId, pre_msg_time)
 	if err != nil {
-		fmt.Printf("Run message sever failed: %v\n", err)
-		return
+		return nil, err
 	}
+	return messages, nil
 
-	for {
-		conn, err := listen.Accept()
-		if err != nil {
-			fmt.Printf("Accept conn failed: %v\n", err)
-			continue
-		}
-
-		go process(conn)
-	}
 }
 
-func process(conn net.Conn) {
-	defer conn.Close()
-
-	var buf [256]byte
-	for {
-		n, err := conn.Read(buf[:])
-		if n == 0 {
-			if err == io.EOF {
-				break
-			}
-			fmt.Printf("Read message failed: %v\n", err)
-			continue
-		}
-
-		var event = controller.MessageSendEvent{}
-		_ = json.Unmarshal(buf[:n], &event)
-		fmt.Printf("Receive Message：%+v\n", event)
-
-		fromChatKey := fmt.Sprintf("%d_%d", event.UserId, event.ToUserId)
-		if len(event.MsgContent) == 0 {
-			chatConnMap.Store(fromChatKey, conn)
-			continue
-		}
-
-		toChatKey := fmt.Sprintf("%d_%d", event.ToUserId, event.UserId)
-		writeConn, exist := chatConnMap.Load(toChatKey)
-		if !exist {
-			fmt.Printf("User %d offline\n", event.ToUserId)
-			continue
-		}
-
-		pushEvent := controller.MessagePushEvent{
-			FromUserId: event.UserId,
-			MsgContent: event.MsgContent,
-		}
-		pushData, _ := json.Marshal(pushEvent)
-		_, err = writeConn.(net.Conn).Write(pushData)
-		if err != nil {
-			fmt.Printf("Push message failed: %v\n", err)
-		}
+func MessageActionService(userId uint, toUserId uint, content string) (bool, error) {
+	pass, err := mysql.InsertMessage(userId, toUserId, content)
+	if err != nil {
+		return false, err
 	}
+	if !pass {
+		return false, errors.New("发送消息错误")
+	}
+	return true, nil
 }
