@@ -1,6 +1,7 @@
 package mycontroller
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -16,55 +17,59 @@ import (
 // CommentListResponse 评论表的响应结构体
 type CommentListResponse struct {
 	common.Response
-	CommentList []CommentResponse `json:"comment_list,omitempty"`
+	CommentList []CommentResponse `json:"comment_list"`
 }
 
 // CommentActionResponse 评论操作的响应结构体
 type CommentActionResponse struct {
 	common.Response
-	Comment CommentResponse `json:"comment,omitempty"`
+	Comment CommentResponse `json:"comment"`
 }
 
 // UserResponse 用户信息的响应结构体
 type UserResponse struct {
-	ID            uint   `json:"id,omitempty"`
-	Name          string `json:"name,omitempty"`
-	FollowCount   uint   `json:"follow_count,omitempty"`
-	FollowerCount uint   `json:"follower_count,omitempty"`
-	IsFollow      bool   `json:"is_follow,omitempty"`
+	ID              uint   `json:"id"`
+	Name            string `json:"name"`
+	FollowCount     uint   `json:"follow_count"`
+	FollowerCount   uint   `json:"follower_count"`
+	Avatar          string `json:"avatar"`
+	BackgroundImage string `json:"background_image"`
+	IsFollow        bool   `json:"is_follow"`
 }
 
 // CommentResponse 评论信息的响应结构体
 type CommentResponse struct {
-	ID         uint         `json:"id,omitempty"`
-	Content    string       `json:"content,omitempty"`
-	CreateDate string       `json:"create_date,omitempty"`
-	User       UserResponse `json:"user,omitempty"`
+	ID         uint         `json:"id"`
+	Content    string       `json:"content"`
+	CreateDate string       `json:"create_date"`
+	User       UserResponse `json:"user"`
 }
 
 // CommentAction 评论操作
 func CommentAction(c *gin.Context) {
-	//1 数据处理
+	// 1. get the login user id
 	getUserID, _ := c.Get("user_id")
 	var userID uint
 	if v, ok := getUserID.(uint); ok {
 		userID = v
 	}
+
+	// 2. get the action_type and video_id from app
 	actionType := c.Query("action_type")
 	videoIDStr := c.Query("video_id")
 	videoID, _ := strconv.ParseUint(videoIDStr, 10, 10)
 
-	// 2 判断评论操作类型：1代表发布评论，2代表删除评论
-	//2.1 非合法操作类型
+	// 3. check the actionType is valid or not
 	if actionType != "1" && actionType != "2" {
 		c.JSON(http.StatusOK, common.Response{
-			StatusCode: 405,
-			StatusMsg:  "Unsupported actionType",
+			StatusCode: 1,
+			StatusMsg:  "非法操作",
 		})
 		c.Abort()
 		return
 	}
-	//2.2 合法操作类型
+
+	// 4. actionType == 1 means post comment, actionType == 2 means delete comment
 	if actionType == "1" { // 发布评论
 		text := c.Query("comment_text")
 		PostComment(c, userID, text, uint(videoID))
@@ -73,21 +78,20 @@ func CommentAction(c *gin.Context) {
 		commentID, _ := strconv.ParseInt(commentIDStr, 10, 10)
 		DeleteComment(c, uint(videoID), uint(commentID))
 	}
-
 }
 
-// PostComment 发布评论
+// PostComment post the comment
 func PostComment(c *gin.Context, userID uint, text string, videoID uint) {
-	//1 准备数据模型
+	//1. prepare the new comment
 	newComment := model.Comment{
 		VideoID: videoID,
 		UserID:  userID,
 		Content: text,
 	}
 
-	//2 调用service层发布评论并改变评论数量，获取video作者信息
+	// 2. post a new comment and add the comment count for this video
 	err1 := mysql.DB.Transaction(func(db *gorm.DB) error {
-		if err := mysql.PostComment(newComment); err != nil {
+		if err := mysql.PostComment(&newComment); err != nil {
 			return err
 		}
 		if err := mysql.AddCommentCount(videoID); err != nil {
@@ -96,44 +100,49 @@ func PostComment(c *gin.Context, userID uint, text string, videoID uint) {
 		return nil
 	})
 	// getUser, err2 := service.GetUser(userID)
+	// 3. get the login user info and author id
 	var getUser model.User
 	err2 := mysql.GetAUserByID(userID, &getUser)
-	videoAuthor, err3 := mysql.GetVideoAuthorID(videoID)
+	authorID, err3 := mysql.GetVideoAuthorID(videoID)
 
-	//3 响应处理
+	// 4. return error
 	if err1 != nil || err2 != nil || err3 != nil {
 		c.JSON(http.StatusOK, common.Response{
-			StatusCode: 403,
-			StatusMsg:  "Failed to post comment",
+			StatusCode: 1,
+			StatusMsg:  "发布评论失败",
 		})
 		c.Abort()
 		return
 	}
 
+	// 5. return the latest comment
 	c.JSON(http.StatusOK, CommentActionResponse{
 		Response: common.Response{
 			StatusCode: 0,
-			StatusMsg:  "post the comment successfully",
+			StatusMsg:  "发布评论成功",
 		},
 		Comment: CommentResponse{
 			ID:         newComment.ID,
 			Content:    newComment.Content,
 			CreateDate: newComment.CreatedAt.Format("01-02"),
 			User: UserResponse{
-				ID:            getUser.ID,
-				Name:          getUser.Name,
-				FollowCount:   getUser.FollowCount,
-				FollowerCount: getUser.FollowerCount,
-				IsFollow:      service.IsFollowing(userID, videoAuthor),
+				// ID:            getUser.ID,
+				// 因为发布评论的人一定是当前登录用户，因此设成0，该用户可以删除刚发布的评论
+				ID:              0,
+				Name:            getUser.Name,
+				FollowCount:     getUser.FollowCount,
+				FollowerCount:   getUser.FollowerCount,
+				Avatar:          getUser.Avatar,
+				BackgroundImage: getUser.BackgroundImage,
+				IsFollow:        service.IsFollowing(userID, authorID),
 			},
 		},
 	})
 }
 
-// DeleteComment 删除评论
+// DeleteComment delete the comment
 func DeleteComment(c *gin.Context, videoID uint, commentID uint) {
-
-	//1 调用service层删除评论并改变评论数量，获取video作者信息
+	// 1. delete the comment and reduce the comment count of video
 	err := mysql.DB.Transaction(func(db *gorm.DB) error {
 		if err := mysql.DeleteComment(commentID); err != nil {
 			return err
@@ -143,25 +152,27 @@ func DeleteComment(c *gin.Context, videoID uint, commentID uint) {
 		}
 		return nil
 	})
-	//2 响应处理
+
+	// 2. return error
 	if err != nil {
 		c.JSON(http.StatusOK, common.Response{
-			StatusCode: 403,
-			StatusMsg:  "Failed to delete comment",
+			StatusCode: 1,
+			StatusMsg:  "删除评论失败",
 		})
 		c.Abort()
 		return
 	}
 
+	// 3. delete successfully
 	c.JSON(http.StatusOK, common.Response{
 		StatusCode: 0,
-		StatusMsg:  "delete the comment successfully",
+		StatusMsg:  "成功删除评论",
 	})
 }
 
-// CommentList 获取评论表
+// CommentList get the comment list
 func CommentList(c *gin.Context) {
-	//1 数据处理
+	// 1. get the user id and video id
 	getUserID, _ := c.Get("user_id")
 	var userID uint
 	if v, ok := getUserID.(uint); ok {
@@ -170,20 +181,20 @@ func CommentList(c *gin.Context) {
 	videoIDStr := c.Query("video_id")
 	videoID, _ := strconv.ParseUint(videoIDStr, 10, 10)
 
-	//2.调用service层获取指定videoid的评论表
+	// 2. get the comment list
 	commentList, err := mysql.GetCommentList(uint(videoID))
 
-	//2.1 评论表不存在
+	// 3. fail to get the comment list
 	if err != nil {
 		c.JSON(http.StatusOK, common.Response{
-			StatusCode: 403,
-			StatusMsg:  "Failed to get commentList",
+			StatusCode: 1,
+			StatusMsg:  common.ErrorCommentListGet.Error(),
 		})
 		c.Abort()
 		return
 	}
 
-	//2.2 评论表存在
+	// 4. pack the response
 	var responseCommentList []CommentResponse
 	for i := 0; i < len(commentList); i++ {
 		// getUser, err1 := service.GetUser(commentList[i].UserID)
@@ -192,18 +203,31 @@ func CommentList(c *gin.Context) {
 
 		if err1 != nil {
 			c.JSON(http.StatusOK, common.Response{
-				StatusCode: 403,
-				StatusMsg:  "Failed to get commentList.",
+				StatusCode: 1,
+				StatusMsg:  common.ErrorCommentListGet.Error(),
 			})
 			c.Abort()
 			return
 		}
+		var returnID uint
+		fmt.Printf("\n当前登录的用户id: %d\n\n", userID)
+		fmt.Printf("\n评论者的id: %d\n\n", commentList[i].UserID)
+
+		// if the comment user equals to the login user, change the id to
+		// to trigger the delete action in app
+		if userID == commentList[i].UserID {
+			returnID = 0
+		} else {
+			returnID = commentList[i].UserID
+		}
+
 		responseComment := CommentResponse{
 			ID:         commentList[i].ID,
 			Content:    commentList[i].Content,
 			CreateDate: commentList[i].CreatedAt.Format("01-02"), // mm-dd
 			User: UserResponse{
-				ID:            getUser.ID,
+				// ID:            getUser.ID,
+				ID:            returnID,
 				Name:          getUser.Name,
 				FollowCount:   getUser.FollowCount,
 				FollowerCount: getUser.FollowerCount,
@@ -214,11 +238,11 @@ func CommentList(c *gin.Context) {
 
 	}
 
-	//响应返回
+	// 5. return the response
 	c.JSON(http.StatusOK, CommentListResponse{
 		Response: common.Response{
 			StatusCode: 0,
-			StatusMsg:  "Successfully obtained the comment list.",
+			StatusMsg:  "成功获取评论列表",
 		},
 		CommentList: responseCommentList,
 	})

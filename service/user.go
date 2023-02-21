@@ -8,13 +8,15 @@ import (
 )
 
 type UserInfoQueryResponse struct {
-	UserID         uint   `json:"user_id"`
-	UserName       string `json:"name"`
-	FollowCount    uint   `json:"follow_count"`
-	FollowerCount  uint   `json:"follower_count"`
-	IsFollow       bool   `json:"is_follow"`
-	TotalFavorited uint   `json:"total_favorited"`
-	FavoriteCount  uint   `json:"favorite_count"`
+	UserID          uint   `json:"user_id"`
+	UserName        string `json:"name"`
+	FollowCount     uint   `json:"follow_count"`
+	FollowerCount   uint   `json:"follower_count"`
+	IsFollow        bool   `json:"is_follow"`
+	Avatar          string `json:"avatar"`
+	BackgroundImage string `json:"background_image"`
+	TotalFavorited  uint   `json:"total_favorited"`
+	FavoriteCount   uint   `json:"favorite_count"`
 }
 
 // UserInfoService
@@ -38,13 +40,15 @@ func UserInfoService(rawID string) (UserInfoQueryResponse, error) {
 
 	// 4. return the user info
 	userInfoQueryResponse = UserInfoQueryResponse{
-		UserID:         user.Model.ID,
-		UserName:       user.Name,
-		FollowCount:    user.FollowCount,
-		FollowerCount:  user.FollowerCount,
-		TotalFavorited: user.TotalFavorited,
-		FavoriteCount:  user.FavoriteCount,
-		IsFollow:       false,
+		UserID:          user.Model.ID,
+		UserName:        user.Name,
+		FollowCount:     user.FollowCount,
+		FollowerCount:   user.FollowerCount,
+		TotalFavorited:  user.TotalFavorited,
+		FavoriteCount:   user.FavoriteCount,
+		Avatar:          user.Avatar,
+		BackgroundImage: user.BackgroundImage,
+		IsFollow:        false,
 	}
 	return userInfoQueryResponse, nil
 }

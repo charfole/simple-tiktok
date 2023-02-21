@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+
 	"github.com/charfole/simple-tiktok/dao/mysql"
 	"github.com/charfole/simple-tiktok/model"
 )
@@ -55,15 +56,17 @@ func PackageFriendLists(userId uint) ([]model.FriendUser, error) {
 		fmt.Printf("最新消息是", message)
 		//userInfo.AvatarUrl = "https://xingqiu-tuchuang-1256524210.cos.ap-shanghai.myqcloud.com/12640/20230206133334.png"
 		FriendLists = append(FriendLists, model.FriendUser{
-			ID:             userInfo.Model.ID,
-			Name:           userInfo.Name,
-			FollowCount:    userInfo.FollowCount,
-			FollowerCount:  userInfo.FollowerCount,
-			TotalFavorited: userInfo.TotalFavorited,
-			FavoriteCount:  userInfo.FavoriteCount,
-			IsFollow:       true, //好友都是互相关注的
-			Message:        message,
-			MsgType:        msgType,
+			ID:              userInfo.Model.ID,
+			Name:            userInfo.Name,
+			FollowCount:     userInfo.FollowCount,
+			FollowerCount:   userInfo.FollowerCount,
+			TotalFavorited:  userInfo.TotalFavorited,
+			FavoriteCount:   userInfo.FavoriteCount,
+			Avatar:          userInfo.Avatar,
+			BackgroundImage: userInfo.BackgroundImage,
+			IsFollow:        true, //好友都是互相关注的
+			Message:         message,
+			MsgType:         msgType,
 		})
 	}
 

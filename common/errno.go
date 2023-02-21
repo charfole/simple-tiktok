@@ -28,4 +28,5 @@ var (
 	ErrorFavoriteNotFound   = errors.New("喜欢不存在，无法取消喜欢")
 	ErrorUnknownAction      = errors.New("未知操作")
 	ErrorVideoExpired       = errors.New("某喜欢视频过期")
+	ErrorCommentListGet     = errors.New("获取评论列表失败")
 )

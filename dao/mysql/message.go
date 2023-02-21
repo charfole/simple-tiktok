@@ -1,17 +1,19 @@
 package mysql
 
 import (
-	"github.com/charfole/simple-tiktok/model"
 	"time"
+
+	"github.com/charfole/simple-tiktok/model"
 )
 
 // InsertMessage 插入数据
 func InsertMessage(userId uint, toUserId uint, content string) (bool, error) {
 	messageInfo := model.Message{
-		ToUserId:   toUserId,
-		UserId:     userId,
-		Content:    content,
-		CreateTime: time.Now().UnixNano() / 1e6,
+		ToUserId: toUserId,
+		UserId:   userId,
+		Content:  content,
+		// CreateTime: time.Now().UnixNano() / 1e6,
+		CreateTime: time.Now().Unix(),
 	}
 	// INSERT INTO `messages` (`user_id`,`to_user_id`,`content`,`is_withdraw`,`createTime`) VALUES (5,1,'111',0,'2023-02-08 19:21:15.017')
 	result := DB.Debug().Create(&messageInfo)

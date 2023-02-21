@@ -10,13 +10,15 @@ import (
 )
 
 type FeedUser struct {
-	ID             uint   `json:"id,omitempty"`
-	Name           string `json:"name,omitempty"`
-	FollowCount    uint   `json:"follow_count,omitempty"`
-	FollowerCount  uint   `json:"follower_count,omitempty"`
-	IsFollow       bool   `json:"is_follow,omitempty"`
-	TotalFavorited uint   `json:"total_favorited"`
-	FavoriteCount  uint   `json:"favorite_count"`
+	ID              uint   `json:"id,omitempty"`
+	Name            string `json:"name,omitempty"`
+	FollowCount     uint   `json:"follow_count,omitempty"`
+	FollowerCount   uint   `json:"follower_count,omitempty"`
+	IsFollow        bool   `json:"is_follow,omitempty"`
+	Avatar          string `json:"avatar"`
+	BackgroundImage string `json:"background_image"`
+	TotalFavorited  uint   `json:"total_favorited"`
+	FavoriteCount   uint   `json:"favorite_count"`
 }
 
 type FeedVideo struct {
@@ -50,6 +52,8 @@ func PackFeedResponse(strToken string, videoList []model.Video) (feedVideoList [
 			feedUser.FollowerCount = user.FollowerCount
 			feedUser.FollowCount = user.FollowCount
 			feedUser.Name = user.Name
+			feedUser.Avatar = user.Avatar
+			feedUser.BackgroundImage = user.BackgroundImage
 			feedUser.TotalFavorited = user.TotalFavorited
 			feedUser.FavoriteCount = user.FavoriteCount
 			feedUser.IsFollow = false

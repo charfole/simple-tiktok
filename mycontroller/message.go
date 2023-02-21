@@ -2,13 +2,14 @@ package mycontroller
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/charfole/simple-tiktok/common"
 	"github.com/charfole/simple-tiktok/middleware"
 	"github.com/charfole/simple-tiktok/model"
 	"github.com/charfole/simple-tiktok/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 type MessageListResponse struct {
@@ -49,27 +50,29 @@ func MessageChat(c *gin.Context) {
 	// 5. if checked, get the login userID
 	//hostID := tokenStruct.UserID
 	userId := tokenStruct.UserID
+	fmt.Printf("")
 	//userId := int64(userid.(float64))
 
 	messages, err := service.MessageChatService(userId, uint(toUserId), PreMsgTime)
 	//这里是为了解决左右显示的问题
 
-	//var MyMessageList = make([]model.Message, len(messages))
-	//for i, m := range messages {
-	//	if m.UserId == userId { //如果消息的发送者是登录的本人，则0->1
-	//		MyMessageList[i].UserId = 0
-	//		MyMessageList[i].ToUserId = 1
-	//	}
-	//	if m.ToUserId == userId { //如果消息的接收者是登录的本人，则1->0
-	//		MyMessageList[i].UserId = 1
-	//		MyMessageList[i].ToUserId = 0
-	//	}
-	//
-	//	MyMessageList[i].Content = m.Content
-	//	MyMessageList[i].CreateTime = m.CreateTime
-	//	MyMessageList[i].IsWithdraw = m.IsWithdraw
-	//	MyMessageList[i].ID = m.ID
-	//}
+	var MyMessageList = make([]model.Message, len(messages))
+	for i, m := range messages {
+		if m.UserId == userId { //如果消息的发送者是登录的本人，则0->1
+			MyMessageList[i].UserId = 0
+			MyMessageList[i].ToUserId = 1
+		}
+		if m.ToUserId == userId { //如果消息的接收者是登录的本人，则1->0
+			MyMessageList[i].UserId = 1
+			MyMessageList[i].ToUserId = 0
+		}
+
+		MyMessageList[i].Content = m.Content
+		MyMessageList[i].CreateTime = m.CreateTime
+		// MyMessageList[i].IsWithdraw = m.IsWithdraw
+		MyMessageList[i].ID = m.ID
+	}
+
 	if err != nil {
 		c.JSON(http.StatusBadRequest, common.Response{
 			StatusCode: -1,
@@ -82,7 +85,7 @@ func MessageChat(c *gin.Context) {
 			StatusCode: 0,
 			StatusMsg:  "Success",
 		},
-		MessageList: messages,
+		MessageList: MyMessageList,
 	})
 	return
 }
