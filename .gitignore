@@ -21,7 +21,7 @@
 go.work
 
 # yaml file (only use in devlopment and avoid secret infos leaking)
-*.yaml
+config.yaml
 *.toml
 *.yml
 

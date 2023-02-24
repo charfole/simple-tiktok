@@ -65,7 +65,6 @@ func ReduceCommentCount(videoID uint) error {
 
 // AddCommentCount add comment_count
 func AddCommentCount(videoID uint) error {
-
 	if err := DB.Table("videos").Where("id = ?", videoID).Update("comment_count", gorm.Expr("comment_count + 1")).Error; err != nil {
 		return err
 	}

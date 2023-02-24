@@ -2,22 +2,25 @@ package mycontroller
 
 import (
 	"fmt"
+	"net/http"
+	"strconv"
+
 	"github.com/charfole/simple-tiktok/common"
 	"github.com/charfole/simple-tiktok/middleware"
 	"github.com/charfole/simple-tiktok/model"
 	"github.com/charfole/simple-tiktok/service"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"strconv"
 )
 
 // ReturnFollower 关注表与粉丝表共用的用户数据模型
 type ReturnFollower struct {
-	ID            uint   `json:"id"`
-	Name          string `json:"name"`
-	FollowCount   uint   `json:"follow_count"`
-	FollowerCount uint   `json:"follower_count"`
-	IsFollow      bool   `json:"is_follow"`
+	ID              uint   `json:"id"`
+	Name            string `json:"name"`
+	FollowCount     uint   `json:"follow_count"`
+	FollowerCount   uint   `json:"follower_count"`
+	Avatar          string `json:"avatar"`
+	BackgroundImage string `json:"background_image"`
+	IsFollow        bool   `json:"is_follow"`
 }
 
 // FollowingListResponse 关注表相应结构体
@@ -101,6 +104,8 @@ func FollowList(c *gin.Context) {
 		ReturnFollowerList[i].Name = m.Name
 		ReturnFollowerList[i].FollowCount = m.FollowCount
 		ReturnFollowerList[i].FollowerCount = m.FollowerCount
+		ReturnFollowerList[i].Avatar = m.Avatar
+		ReturnFollowerList[i].BackgroundImage = m.BackgroundImage
 		ReturnFollowerList[i].IsFollow = service.IsFollowing(hostID, m.ID)
 	}
 	fmt.Printf("找到关注表", ReturnFollowerList)
@@ -155,6 +160,8 @@ func FollowerList(c *gin.Context) {
 		ReturnFollowerList[i].Name = m.Name
 		ReturnFollowerList[i].FollowCount = m.FollowCount
 		ReturnFollowerList[i].FollowerCount = m.FollowerCount
+		ReturnFollowerList[i].Avatar = m.Avatar
+		ReturnFollowerList[i].BackgroundImage = m.BackgroundImage
 		ReturnFollowerList[i].IsFollow = service.IsFollowing(hostID, m.ID)
 	}
 	fmt.Printf("找到粉丝表", ReturnFollowerList)

@@ -227,11 +227,13 @@ func CommentList(c *gin.Context) {
 			CreateDate: commentList[i].CreatedAt.Format("01-02"), // mm-dd
 			User: UserResponse{
 				// ID:            getUser.ID,
-				ID:            returnID,
-				Name:          getUser.Name,
-				FollowCount:   getUser.FollowCount,
-				FollowerCount: getUser.FollowerCount,
-				IsFollow:      service.IsFollowing(userID, commentList[i].ID),
+				ID:              returnID,
+				Name:            getUser.Name,
+				FollowCount:     getUser.FollowCount,
+				FollowerCount:   getUser.FollowerCount,
+				Avatar:          getUser.Avatar,
+				BackgroundImage: getUser.BackgroundImage,
+				IsFollow:        service.IsFollowing(userID, commentList[i].ID),
 			},
 		}
 		responseCommentList = append(responseCommentList, responseComment)
@@ -246,5 +248,4 @@ func CommentList(c *gin.Context) {
 		},
 		CommentList: responseCommentList,
 	})
-
 }

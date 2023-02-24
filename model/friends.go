@@ -1,7 +1,7 @@
 package model
 
 type FriendUser struct {
-	ID              uint   `json:"id"`
+	ID              uint   `json:"id" gorm:"index"`
 	Name            string `json:"name"`
 	FollowCount     uint   `json:"follow_count"`
 	FollowerCount   uint   `json:"follower_count"`

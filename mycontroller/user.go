@@ -49,7 +49,7 @@ func UserInfo(c *gin.Context) {
 	// 5. if checked, get the login userID
 	hostID := tokenStruct.UserID
 
-	// 6. check the login user follows the guest user or not, then update the "IsFollow" filed
+	// 6. check the login user follows the guest user or not, then update the "IsFollow" tag
 	userInfoResponse.IsFollow = service.CheckIsFollow(hostID, rawGuestID)
 
 	// 7. all done, return

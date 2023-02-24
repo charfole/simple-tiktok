@@ -11,5 +11,5 @@ type Following struct {
 type Followers struct {
 	gorm.Model
 	HostID  uint
-	GuestID uint
+	GuestID uint `gorm:"index"`
 }

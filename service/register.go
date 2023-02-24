@@ -76,8 +76,10 @@ func CreateRegisterUser(username string, password string) (model.User, error) {
 	// 1. hash the original password and create user model
 	hashPassword, _ := HashAndSalt(password)
 	newUser := model.User{
-		Name:     username,
-		Password: hashPassword,
+		Name:            username,
+		Password:        hashPassword,
+		Avatar:          "https://charfolebase-1301984140.cos.ap-guangzhou.myqcloud.com/avatar/avatar4.png",
+		BackgroundImage: "https://charfolebase-1301984140.cos.ap-guangzhou.myqcloud.com/background/bg3.jpg",
 	}
 
 	// 2. migrate the user model to MySQL "users" table

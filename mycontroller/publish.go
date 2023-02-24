@@ -15,7 +15,6 @@ import (
 	"github.com/charfole/simple-tiktok/model"
 	"github.com/charfole/simple-tiktok/service"
 	"github.com/gin-gonic/gin"
-	logging "github.com/sirupsen/logrus"
 )
 
 type VideoListResponse struct {
@@ -99,7 +98,7 @@ func Publish(c *gin.Context) { //上传视频方法
 	// 9. remove the local video
 	err = os.Remove(savePath) // ignore_security_alert
 	if err != nil {
-		logging.Info(err)
+		fmt.Println(err)
 	}
 
 	// 10. save the video record to "videos" database
@@ -115,7 +114,7 @@ func Publish(c *gin.Context) { //上传视频方法
 	// 11. no errors found, upload successfully
 	c.JSON(http.StatusOK, common.Response{
 		StatusCode: 0,
-		StatusMsg:  finalName + " --uploaded successfully",
+		StatusMsg:  finalName + " 上传成功",
 	})
 }
 

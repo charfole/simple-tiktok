@@ -12,7 +12,7 @@ type Server struct {
 }
 
 type Path struct {
-	FfmpegPath       string `mapstructure:"ffmpeg_path"`
+	FFMPEGPath       string `mapstructure:"ffmpeg_path"`
 	StaticSourcePath string `mapstructure:"static_source_path"`
 }
 
@@ -54,8 +54,9 @@ var Info Config
 
 func InitEnv() {
 	viper.SetConfigFile("/root/Workspace/go/camp/project/simple-tiktok/config/config.toml") // 指定配置文件路径
-	err := viper.ReadInConfig()                                                             // 读取配置信息
-	if err != nil {                                                                         // 读取配置信息失败
+	// viper.SetConfigFile("config.toml") // 指定对应的配置文件路径
+	err := viper.ReadInConfig() // 读取配置信息
+	if err != nil {             // 读取配置信息失败
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))
 	}
 	if err := viper.Unmarshal(&Info); err != nil {
