@@ -1,21 +1,6 @@
 # 版本号
 version: "3"
 services:
-  # redis:
-  #   environment:
-  #     TZ: Asia/Shanghai #timeZone 时区
-  #   container_name: tiktok-redis
-  #   image: redis:latest
-  #   ports:
-  #     - "26379:6379"
-  #   volumes:
-  #     - "/etc/localtime:/etc/localtime:ro"
-  #     - "/etc/timezone:/etc/timezone:ro"
-  #     - ./config/docker/redis/redis.conf:/etc/redis/redis.conf
-  #   networks:
-  #     - tiktok-network
-  #   command: redis-server /etc/redis/redis.conf
-
   mysql:
     container_name: tiktok-mysql
     environment:
@@ -39,14 +24,19 @@ services:
       # 这里的my.cnf可以从原来的安装的MySQL里面找，如果没有不配置也不影响，只是为了方便外部更改
       - ./config/docker/mysql/conf/my.cnf:/etc/my.cnf
       - ./config/docker/mysql/init:/docker-entrypoint-initdb.d
-
-    # networks:
-    #   # 注意加入同一个网络
-    #   - tiktok-network
-    # 解决外部无法访问
     command: --default-authentication-plugin=mysql_native_password
 
-# 创建网络      
-# networks:
-#   # 默认将会创建为 docker-compose.yml所在 文件夹名_my_network 网络名称
-#   tiktok-network:
+  # redis:
+  #   environment:
+  #     TZ: Asia/Shanghai #timeZone 时区
+  #   container_name: tiktok-redis
+  #   image: redis:latest
+  #   ports:
+  #     - "26379:6379"
+  #   volumes:
+  #     - "/etc/localtime:/etc/localtime:ro"
+  #     - "/etc/timezone:/etc/timezone:ro"
+  #     - ./config/docker/redis/redis.conf:/etc/redis/redis.conf
+  #   networks:
+  #     - tiktok-network
+  #   command: redis-server /etc/redis/redis.conf

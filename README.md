@@ -1,26 +1,14 @@
-# simple-demo
+# simple-tiktok（简易版抖音）
 
-## 抖音项目服务端简单示例
+## Ready2GO小队第五届字节跳动青训营后端结业项目
 
-具体功能内容参考飞书说明文档
+**项目简介：**本项目基于Go语言进行开发，运用MySQL、Docker、Gin、Gorm、Viper、jwt-go、ffmpeg-go、腾讯云对象存储等工具和库，实现了一个**简易版抖音的服务端**，其中包括三类接口：基础接口（视频Feed流获取、视频投稿、个人主页）、互动接口（喜欢功能与评论功能）、社交接口（关注列表、粉丝列表、好友列表、聊天功能）。
 
-工程无其他依赖，直接编译运行即可
+**项目架构图：**
+![simple-tiktok架构图](./resources/1280X1280.PNG)
 
-```shell
-go build && ./simple-demo
-```
+**项目文档与演示视频：**[Ready2Go青训营后端结业项目答辩汇报文档](https://p4mo20kb4g.feishu.cn/docx/BSQMdM032ozFGOxHe4nc8V30nOc)
 
-### 功能说明
+**项目具体接口文档：**[简易版抖音项目方案说明](https://bytedance.feishu.cn/docs/doccnKrCsU5Iac6eftnFBdsXTof#)
 
-接口功能不完善，仅作为示例
-
-* 用户登录数据保存在内存中，单次运行过程中有效
-* 视频上传后会保存到本地 public 目录中，访问时用 127.0.0.1:8080/static/video_name 即可
-
-### 测试
-
-test 目录下为不同场景的功能测试case，可用于验证功能实现正确性
-
-其中 common.go 中的 _serverAddr_ 为服务部署的地址，默认为本机地址，可以根据实际情况修改
-
-测试数据写在 demo_data.go 中，用于列表接口的 mock 测试
+**项目App端下载与使用说明：**[简易版抖音App](https://bytedance.feishu.cn/docs/doccnM9KkBAdyDhg8qaeGlIz7S7)
