@@ -27,4 +27,3 @@ docker-compose.yml
 
 # ide config file
 .vscode
-.idea
