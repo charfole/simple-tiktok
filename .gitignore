@@ -23,8 +23,7 @@ go.work
 # config file (only use in devlopment and avoid secret infos leaking)
 config.toml
 docker-compose.yml
-*.toml
-*.yml
+.air.toml
 
 # ide config file
 .vscode
