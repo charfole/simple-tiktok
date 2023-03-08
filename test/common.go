@@ -7,9 +7,10 @@ import (
 	"github.com/gavv/httpexpect/v2"
 )
 
-var serverAddr = "http://localhost:8888"
+var serverAddr = "http://localhost:8967"
 var testUserA = "douyinTestUserA"
 var testUserB = "douyinTestUserB"
+var testUser = "douyin3450"
 
 func newExpect(t *testing.T) *httpexpect.Expect {
 	return httpexpect.WithConfig(httpexpect.Config{

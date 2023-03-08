@@ -21,7 +21,8 @@
 go.work
 
 # yaml file (only use in devlopment and avoid secret infos leaking)
-config.yaml
+config.toml
+docker-compose.yml
 *.toml
 *.yml
 

@@ -29,6 +29,7 @@ func TestUserAction(t *testing.T) {
 
 	rand.Seed(time.Now().UnixNano())
 	registerValue := fmt.Sprintf("douyin%d", rand.Intn(65536))
+	// registerValue := "douyin3450"
 
 	registerResp := e.POST("/douyin/user/register/").
 		WithQuery("username", registerValue).WithQuery("password", registerValue).
@@ -51,22 +52,24 @@ func TestUserAction(t *testing.T) {
 	loginResp.Value("token").String().Length().Gt(0)
 
 	token := loginResp.Value("token").String().Raw()
+	userID := loginResp.Value("user_id").Number().Raw()
+
 	userResp := e.GET("/douyin/user/").
-		WithQuery("token", token).
+		WithQuery("token", token).WithQuery("user_id", userID).
 		Expect().
 		Status(http.StatusOK).
 		JSON().Object()
 	userResp.Value("status_code").Number().Equal(0)
 	userInfo := userResp.Value("user").Object()
 	userInfo.NotEmpty()
-	userInfo.Value("id").Number().Gt(0)
+	userInfo.Value("user_id").Number().Gt(0)
 	userInfo.Value("name").String().Length().Gt(0)
 }
 
 func TestPublish(t *testing.T) {
 	e := newExpect(t)
 
-	userId, token := getTestUserToken(testUserA, e)
+	userId, token := getTestUserToken(testUser, e)
 
 	publishResp := e.POST("/douyin/publish/action/").
 		WithMultipart().
@@ -88,7 +91,7 @@ func TestPublish(t *testing.T) {
 
 	for _, element := range publishListResp.Value("video_list").Array().Iter() {
 		video := element.Object()
-		video.ContainsKey("id")
+		video.ContainsKey("video_id")
 		video.ContainsKey("author")
 		video.Value("play_url").String().NotEmpty()
 		video.Value("cover_url").String().NotEmpty()
