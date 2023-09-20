@@ -26,3 +26,5 @@
 
 **项目服务端架构图：**
 ![simple-tiktok架构图](./resources/1280X1280.PNG)
+
+**PS：** 如果发现错误或有疑惑，欢迎提issue或邮件联系(mail@charfole.top)
