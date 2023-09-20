@@ -1,0 +1,51 @@
+[server]
+# 服务端运行服务器的ip，按需修改
+ip = "server ip address" 
+# 服务端运行的端口，按需修改
+port = "8080"  
+
+[path]
+# ffmpeg的路径，如果配置好了环境变量，则直接写ffmpeg即可
+ffmpeg_path = "ffmpeg"
+# ffmpeg处理时临时保存视频的绝对路径，可以选择项目文件夹下的public文件夹
+static_source_path = "/path/to/your/project/simple-tiktok/public"
+
+# 配置Docker-Compose中的MySQL信息
+[mysql]
+# MySQL的ip，保持如下即可
+host = "127.0.0.1"
+# MySQL的端口，对应docker-compose-example.yml中ports:-"33306:3306"的23306
+port = "33306"
+# MySQL数据库名，对应docker-compose-example.yml中MYSQL_DATABASE: 'simple_tiktok'
+database = "simple_tiktok"
+# 直接使用root用户进行登录
+username = "root"
+# MySQL root用户的密码，按实际情况修改
+password = "your MySQL root password"
+# MySQL的字符集，保持如下即可
+charset = "utf8mb4"
+# 时区相关的设置，保持如下即可
+parse_time = true
+loc = "Local"
+
+# 暂未使用redis，这里直接保留即可
+[redis]
+host = "127.0.0.1"
+port = "6379"
+database = "1"
+
+# 腾讯云COS对象存储的配置，根据你的对象存储信息进行配置
+# SDK: https://github.com/tencentyun/cos-go-sdk-v5
+[cos]
+# 存储桶的名字
+bucket_name = "your app name"
+# 存储桶的id
+app_id      = "your app id"
+# 存储桶的地区
+region      = "ap-xx"
+# 存储桶的secret_id
+secret_id   = "your secret id"
+# 存储桶的secret_key
+secret_key  = "your secret key"
+# 存储桶的调用链接，保持如下即可
+url_format  = "http://%s-%s.cos.%s.myqcloud.com"

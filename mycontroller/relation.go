@@ -201,7 +201,7 @@ func FriendList(c *gin.Context) {
 		c.JSON(http.StatusOK, UserInfoResponse{
 			Response: common.Response{
 				StatusCode: 1,
-				StatusMsg:  "err.Error()",
+				StatusMsg:  common.ErrorTokenFalse.Error(),
 			},
 		})
 		return

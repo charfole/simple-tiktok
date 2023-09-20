@@ -41,7 +41,7 @@ func MessageChat(c *gin.Context) {
 		c.JSON(http.StatusOK, UserInfoResponse{
 			Response: common.Response{
 				StatusCode: 1,
-				StatusMsg:  "err.Error()",
+				StatusMsg:  common.ErrorTokenFalse.Error(),
 			},
 		})
 		return
@@ -107,7 +107,7 @@ func MessageAction(c *gin.Context) {
 		c.JSON(http.StatusOK, UserInfoResponse{
 			Response: common.Response{
 				StatusCode: 1,
-				StatusMsg:  "err.Error()",
+				StatusMsg:  common.ErrorTokenFalse.Error(),
 			},
 		})
 		return
@@ -126,8 +126,8 @@ func MessageAction(c *gin.Context) {
 	if actionType != "1" {
 		c.JSON(http.StatusOK, UserInfoResponse{
 			Response: common.Response{
-				StatusCode: -1,
-				StatusMsg:  "err.Error()",
+				StatusCode: 1,
+				StatusMsg:  common.ErrorTokenFalse.Error(),
 			},
 		})
 		return
