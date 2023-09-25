@@ -96,6 +96,7 @@ func GetCoverFrame(inFileName string, frameNum int) io.Reader {
 		WithOutput(buf, os.Stdout).
 		Run()
 	if err != nil {
+		fmt.Printf("ffmpeg error")
 		panic(err)
 	}
 	return buf

@@ -8,14 +8,14 @@ port = "8967"
 # ffmpeg的路径，如果配置好了环境变量，则直接写ffmpeg即可
 ffmpeg_path = "ffmpeg"
 # ffmpeg处理时临时保存视频的绝对路径，可以选择项目文件夹下的public文件夹
-static_source_path = "/path/to/your/project/simple-tiktok/public"
+static_source_path = "./public"
 
 # 配置Docker-Compose中的MySQL信息
 [mysql]
-# MySQL的ip，保持如下即可
-host = "127.0.0.1"
-# MySQL的端口，对应docker-compose-example.yml中ports:-"33306:3306"的23306
-port = "33306"
+# MySQL在docker compose中的hostname，保持如下即可
+host = "db"
+# MySQL的端口，docker compose中内部的3306端口
+port = "3306"
 # MySQL数据库名，对应docker-compose-example.yml中MYSQL_DATABASE: 'simple_tiktok'
 database = "simple_tiktok"
 # 直接使用root用户进行登录

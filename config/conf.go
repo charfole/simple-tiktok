@@ -53,8 +53,10 @@ type Config struct {
 var Info Config
 
 func InitEnv() {
-	viper.SetConfigFile("/root/Workspace/go/camp/project/simple-tiktok/config/config.toml") // 指定配置文件路径
-	// viper.SetConfigFile("config.toml") // 指定对应的配置文件路径
+	// 1. 本地启动服务端的配置文件路径
+	// viper.SetConfigFile("/root/Workspace/go/camp/project/simple-tiktok/config/config.toml")
+	// 2. Docker compose启动服务端的配置文件路径
+	viper.SetConfigFile("./config/config-compose.toml")
 	err := viper.ReadInConfig() // 读取配置信息
 	if err != nil {             // 读取配置信息失败
 		panic(fmt.Errorf("Fatal error config file: %s \n", err))

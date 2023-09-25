@@ -2,11 +2,8 @@
 # https://github.com/github/gitignore/blob/main/community/Golang/Go.AllowList.gitignore
 #
 # Binaries for programs and plugins
-*.exe
-*.exe~
-*.dll
-*.so
-*.dylib
+mysql/
+redis/
 
 # Test binary, built with `go test -c`
 *.test
@@ -22,8 +19,11 @@ go.work
 
 # config file (only use in devlopment and avoid secret infos leaking)
 config.toml
+config-compose.toml
 docker-compose.yml
 .air.toml
+Dockerfile.test
+Dockerfile.multistage
 
 # ide config file
 .vscode

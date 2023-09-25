@@ -1,29 +1,21 @@
-version: '3.8'
-
-networks:
-  simple-tiktok-test-net:
-    driver: bridge
-
+# 版本号
+version: "3"
 services:
-  tiktok-mysql:
-    image: mysql:latest
+  mysql:
     container_name: tiktok-mysql
-    # 主机名，方便容器内互相通信
-    hostname: db
     environment:
       TZ: Asia/Shanghai #timeZone 时区
       # 等同于 -e MYSQL_ROOT_PASSWORD指定root的登录密码
-      MYSQL_ROOT_PASSWORD: 'your MySQL root password'
+      MYSQL_ROOT_PASSWORD: 'tiktokroot'
       MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
       # 这里这个指令compose启动成功后会自动创建名为simple_tiktok的数据库
       MYSQL_DATABASE: 'simple_tiktok'
       # 此处就是相当于 mysql create user，创建了数据库的登录用户
       MYSQL_USER: 'tiktok'
       MYSQL_PASSWORD: 'tiktokabc'
-    networks:
-      - simple-tiktok-test-net
+    image: mysql:latest
     ports:
-      - 33306:3306
+      - "23306:3306"
     volumes:
       # 同步宿主机的时区
       - "/etc/localtime:/etc/localtime:ro"
@@ -33,23 +25,3 @@ services:
       - ./config/docker/mysql/conf/my.cnf:/etc/my.cnf
       - ./config/docker/mysql/init:/docker-entrypoint-initdb.d
     command: --default-authentication-plugin=mysql_native_password
-  simple-tiktok:
-    depends_on: 
-      - tiktok-mysql
-    build:
-      context: .
-      dockerfile: ./Dockerfile
-      args:
-        IMAGE_NAME: simple-tiktok  # 镜像名称
-        IMAGE_TAG: compose  # 镜像标签
-    container_name: simple-tiktok
-    networks:
-      - simple-tiktok-test-net
-    ports:
-      - 8967:8967
-    environment:
-      TZ: Asia/Shanghai
-      GOPROXY: https://goproxy.cn,direct
-    deploy:
-      restart_policy:
-        condition: on-failure
